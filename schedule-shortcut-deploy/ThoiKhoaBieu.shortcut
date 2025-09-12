@@ -1,0 +1,199 @@
+# Thời Khóa Biểu Shortcut for iPhone
+# Import this file to Shortcuts app
+
+name: "Thời Khóa Biểu VL64A-QTKD & LT64A-QTKD"
+icon: "book.fill"
+color: "blue"
+
+actions:
+  - type: "text"
+    uuid: "data-source"
+    text: |
+      {
+        "courses": [
+          {
+            "code": "PPH108",
+            "name": "Phát triển kỹ năng và định hướng NN cho nhà QT",
+            "day": 2,
+            "startTime": "07:00",
+            "endTime": "09:30",
+            "room": "A401",
+            "department": "K.QTKD",
+            "startDate": "2025-09-23",
+            "endDate": "2025-10-30"
+          },
+          {
+            "code": "KET201", 
+            "name": "Nguyên lý kế toán",
+            "day": 3,
+            "startTime": "13:00",
+            "endTime": "15:30", 
+            "room": "A405",
+            "department": "",
+            "startDate": "2025-09-24",
+            "endDate": "2025-10-20"
+          },
+          {
+            "code": "EBA111",
+            "name": "Tiếng anh học thuật và TM 1", 
+            "day": 5,
+            "startTime": "09:30",
+            "endTime": "12:00",
+            "room": "B402",
+            "department": "",
+            "startDate": "2025-10-22",
+            "endDate": "2025-12-09"
+          },
+          {
+            "code": "DTI100",
+            "name": "Tư duy thiết kế và đổi mới sáng tạo",
+            "day": 6, 
+            "startTime": "15:30",
+            "endTime": "18:00",
+            "room": "A405",
+            "department": "",
+            "startDate": "2025-04-11",
+            "endDate": "2025-11-12"
+          },
+          {
+            "code": "MKT301",
+            "name": "Marketing căn bản",
+            "day": 7,
+            "startTime": "07:00", 
+            "endTime": "09:30",
+            "room": "A305",
+            "department": "",
+            "startDate": "2025-11-12",
+            "endDate": "2026-01-17"
+          }
+        ]
+      }
+
+  - type: "getValueForKey"
+    uuid: "get-courses"
+    key: "courses"
+    input: "data-source"
+
+  - type: "date"
+    uuid: "current-date"
+
+  - type: "formatDate"
+    uuid: "day-of-week"
+    format: "custom"
+    customFormat: "u"
+    input: "current-date"
+
+  - type: "chooseFromMenu"
+    uuid: "main-menu"
+    prompt: "Chọn chức năng:"
+    items:
+      - "📅 Hôm nay"
+      - "📆 Tuần này" 
+      - "📋 Tất cả môn"
+      - "🔔 Cài thông báo"
+      - "📊 Widget"
+
+  # TODAY'S SCHEDULE
+  - type: "conditional"
+    uuid: "today-condition"
+    condition: "equals"
+    value: "📅 Hôm nay"
+    input: "main-menu"
+    
+    ifTrue:
+      - type: "filterItems"
+        uuid: "today-filter"
+        property: "day"
+        condition: "equals"
+        value: "day-of-week"
+        input: "get-courses"
+        
+      - type: "repeatWithEach"
+        uuid: "format-today"
+        input: "today-filter"
+        actions:
+          - type: "text"
+            text: |
+              📚 {{courseCode}} - {{courseName}}
+              ⏰ {{startTime}} - {{endTime}}
+              🏫 Phòng: {{room}}
+              📍 {{department}}
+              
+      - type: "showNotification"
+        title: "Thời khóa biểu hôm nay"
+        body: "format-today"
+
+  # WEEK'S SCHEDULE  
+  - type: "conditional"
+    uuid: "week-condition"
+    condition: "equals"
+    value: "📆 Tuần này"
+    input: "main-menu"
+    
+    ifTrue:
+      - type: "text"
+        uuid: "week-schedule"
+        text: |
+          📅 THỜI KHÓA BIỂU TUẦN NÀY
+          
+          Thứ 2: PPH108 (07:00-09:30) - A401
+          📚 Phát triển kỹ năng và định hướng NN cho nhà QT
+          
+          Thứ 3: KET201 (13:00-15:30) - A405  
+          📚 Nguyên lý kế toán
+          
+          Thứ 5: EBA111 (09:30-12:00) - B402
+          📚 Tiếng anh học thuật và TM 1
+          
+          Thứ 6: DTI100 (15:30-18:00) - A405
+          📚 Tư duy thiết kế và đổi mới sáng tạo
+          
+          Thứ 7: MKT301 (07:00-09:30) - A305
+          📚 Marketing căn bản
+          
+      - type: "showNotification"
+        title: "Lịch học tuần này"
+        body: "week-schedule"
+        
+      - type: "copyToClipboard"
+        input: "week-schedule"
+
+  # SET NOTIFICATIONS
+  - type: "conditional"
+    uuid: "notification-condition" 
+    condition: "equals"
+    value: "🔔 Cài thông báo"
+    input: "main-menu"
+    
+    ifTrue:
+      - type: "repeatWithEach"
+        uuid: "create-reminders"
+        input: "get-courses"
+        actions:
+          - type: "addToCalendar"
+            title: "📚 {{code}} - {{name}}"
+            startDate: "{{startDate}} {{startTime}}"
+            endDate: "{{startDate}} {{endTime}}"
+            location: "{{room}}"
+            notes: "Khoa: {{department}}"
+            alert: "30 minutes"
+            
+      - type: "showNotification"
+        title: "Thành công!"
+        body: "Đã thêm tất cả lịch học vào Calendar với thông báo 30 phút trước"
+
+automation:
+  - trigger: "time"
+    time: "06:30"
+    days: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+    action: "run-shortcut"
+    shortcut: "Thời Khóa Biểu VL64A-QTKD & LT64A-QTKD"
+
+widget:
+  size: "medium"
+  template: |
+    📚 HÔM NAY
+    {{todaySchedule}}
+    
+    ⏰ TIẾP THEO  
+    {{nextClass}}
