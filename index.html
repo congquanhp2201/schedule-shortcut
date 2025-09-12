@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📚 Shortcut Thời Khóa Biểu VL64A-QTKD & LT64A-QTKD</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .title {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+        }
+        
+        .class-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .downloads {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .download-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 15px;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .download-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        .download-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .download-card .title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .download-card .desc {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .schedule-preview {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .schedule-table th,
+        .schedule-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .schedule-table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .feature .icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        .feature .title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .feature .desc {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .qr-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .downloads {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">📚 Shortcut Thời Khóa Biểu</h1>
+            <p class="subtitle">Dành cho iPhone - Lớp VL64A-QTKD & LT64A-QTKD</p>
+        </div>
+        
+        <div class="class-info">
+            <h3>🎓 Thông tin lớp học</h3>
+            <p><strong>Lớp:</strong> VL64A-QTKD, LT64A-QTKD</p>
+            <p><strong>Học kỳ:</strong> HK1 2025-2026</p>
+            <p><strong>Tổng môn học:</strong> 5 môn</p>
+        </div>
+        
+        <div class="downloads">
+            <a href="ThoiKhoaBieu.shortcut" class="download-card" download>
+                <span class="icon">📱</span>
+                <div class="title">Tải Shortcut</div>
+                <div class="desc">File shortcut cho iPhone</div>
+            </a>
+            
+            <a href="HUONG_DAN_SHORTCUT.md" class="download-card" target="_blank">
+                <span class="icon">📖</span>
+                <div class="title">Hướng dẫn</div>
+                <div class="desc">Cách cài đặt chi tiết</div>
+            </a>
+            
+            <a href="schedule_data.json" class="download-card" target="_blank">
+                <span class="icon">📊</span>
+                <div class="title">Dữ liệu JSON</div>
+                <div class="desc">Thời khóa biểu raw data</div>
+            </a>
+            
+            <a href="CACH_TAI_SHORTCUT.md" class="download-card" target="_blank">
+                <span class="icon">💾</span>
+                <div class="title">Cách tải</div>
+                <div class="desc">Nhiều phương án tải về</div>
+            </a>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="icon">⏰</div>
+                <div class="title">Thông báo tự động</div>
+                <div class="desc">Nhắc nhở 30 phút trước giờ học</div>
+            </div>
+            
+            <div class="feature">
+                <div class="icon">📅</div>
+                <div class="title">Widget màn hình</div>
+                <div class="desc">Xem lịch không cần mở app</div>
+            </div>
+            
+            <div class="feature">
+                <div class="icon">🗣️</div>
+                <div class="title">Tích hợp Siri</div>
+                <div class="desc">"Hey Siri, thời khóa biểu"</div>
+            </div>
+            
+            <div class="feature">
+                <div class="icon">🔄</div>
+                <div class="title">Tự động chạy</div>
+                <div class="desc">Thông báo 6:30 sáng hàng ngày</div>
+            </div>
+        </div>
+        
+        <div class="schedule-preview">
+            <h3>📋 Xem trước thời khóa biểu</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Môn học</th>
+                        <th>Thời gian</th>
+                        <th>Phòng</th>
+                        <th>Ngày</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>PPH108</strong><br>Phát triển kỹ năng và định hướng NN</td>
+                        <td>07:00 - 09:30</td>
+                        <td>A401</td>
+                        <td>Thứ 2</td>
+                    </tr>
+                    <tr>
+                        <td><strong>KET201</strong><br>Nguyên lý kế toán</td>
+                        <td>13:00 - 15:30</td>
+                        <td>A405</td>
+                        <td>Thứ 3</td>
+                    </tr>
+                    <tr>
+                        <td><strong>EBA111</strong><br>Tiếng anh học thuật và TM 1</td>
+                        <td>09:30 - 12:00</td>
+                        <td>B402</td>
+                        <td>Thứ 5</td>
+                    </tr>
+                    <tr>
+                        <td><strong>DTI100</strong><br>Tư duy thiết kế và đổi mới sáng tạo</td>
+                        <td>15:30 - 18:00</td>
+                        <td>A405</td>
+                        <td>Thứ 6</td>
+                    </tr>
+                    <tr>
+                        <td><strong>MKT301</strong><br>Marketing căn bản</td>
+                        <td>07:00 - 09:30</td>
+                        <td>A305</td>
+                        <td>Thứ 7</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="qr-section">
+            <h3>📱 Quét QR Code để tải nhanh</h3>
+            <p>Mở Camera iPhone và quét mã QR bên dưới</p>
+            <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 10px; display: inline-block;">
+                <div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                    <span style="font-size: 4em;">📱</span>
+                </div>
+            </div>
+            <p><small>QR Code sẽ được tạo sau khi upload lên web</small></p>
+        </div>
+        
+        <div class="footer">
+            <p>🛠️ Được tạo bởi AI Assistant | 📅 Cập nhật: 12/09/2025</p>
+            <p>💡 Mẹo: Thêm shortcut vào Control Center để truy cập nhanh!</p>
+        </div>
+    </div>
+
+    <script>
+        // Thêm hiệu ứng smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Track downloads
+        document.querySelectorAll('.download-card').forEach(card => {
+            card.addEventListener('click', function() {
+                console.log('Downloaded:', this.href);
+                // Có thể thêm Google Analytics tracking ở đây
+            });
+        });
+    </script>
+</body>
+</html>
