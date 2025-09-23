@@ -299,22 +299,128 @@
         }
 
         @media (max-width: 768px) {
-            .calendar {
-                grid-template-columns: repeat(7, 1fr);
-                font-size: 0.8em;
+            body {
+                padding: 10px;
             }
             
-            .day-cell {
-                min-height: 80px;
-                padding: 5px;
+            .container {
+                max-width: 100%;
+                margin: 0;
+                border-radius: 0;
+            }
+            
+            .header {
+                padding: 20px 15px;
             }
             
             .header h1 {
                 font-size: 2em;
             }
             
+            .header p {
+                font-size: 1.1em;
+            }
+            
+            .calendar-container {
+                padding: 15px;
+            }
+            
+            .fc-header-toolbar {
+                padding: 15px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .fc-toolbar-title {
+                font-size: 1.4em !important;
+                order: 1;
+            }
+            
+            .fc-toolbar-chunk {
+                display: flex;
+                justify-content: center;
+            }
+            
+            .fc-button-primary {
+                font-size: 12px !important;
+                padding: 6px 12px !important;
+            }
+            
+            .fc-daygrid-day-frame {
+                min-height: 160px;
+            }
+            
+            .fc-event {
+                font-size: 10px !important;
+                padding: 3px 5px !important;
+                min-height: 70px !important;
+                line-height: 1.2 !important;
+            }
+            
+            .fc-daygrid-day-number {
+                font-size: 14px;
+                padding: 6px;
+            }
+            
             .course-details {
                 grid-template-columns: 1fr;
+            }
+            
+            .schedule-item {
+                padding: 15px;
+            }
+            
+            .course-name {
+                font-size: 1.2em;
+            }
+            
+            .edit-button {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+            
+            .modal-content {
+                max-width: 95%;
+                max-height: 95%;
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .json-editor {
+                min-height: 300px;
+                font-size: 12px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .btn {
+                width: 100%;
+                padding: 12px;
+            }
+            
+            .legend {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .legend-item {
+                justify-content: center;
+            }
+            
+            .today-events {
+                padding: 15px;
+            }
+            
+            .tooltip {
+                max-width: 250px;
+                font-size: 11px;
+                padding: 8px 12px;
             }
         }
 
@@ -565,6 +671,17 @@
         </div>
     </div>
 
+    <!-- Day Detail Modal -->
+    <div id="dayDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3 id="dayDetailTitle">📅 Chi tiết ngày</h3>
+            <div id="dayDetailContent"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal('dayDetailModal')">Đóng</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Schedule data - Loaded from GitHub Gist API
         let scheduleData = null;
@@ -700,6 +817,12 @@
                 eventMouseLeave: function(info) {
                     hideTooltip();
                 },
+                dateClick: function(info) {
+                    console.log('Date clicked:', info.date); // Debug log
+                    showDayDetail(info.date);
+                },
+                selectable: true,
+                selectMirror: true,
                 dayHeaderFormat: { weekday: 'short' },
                 dayHeaderContent: function(arg) {
                     const dayNames = {
@@ -715,20 +838,41 @@
                 },
                 eventContent: function(arg) {
                     const props = arg.event.extendedProps;
-                    const shortCourseName = props.courseName.length > 25 ? 
-                        props.courseName.substring(0, 25) + '...' : props.courseName;
-                    const fullTeacher = props.teacher && props.teacher !== 'Chưa có thông tin' ? 
-                        props.teacher : '';
+                    const isMobile = window.innerWidth <= 768;
                     
-                    return {
-                        html: `<div style="padding: 4px 6px; line-height: 1.2; font-size: 12px;">
-                                <div style="font-weight: 600; font-size: 14px; margin-bottom: 3px; color: white;">${props.courseCode}</div>
-                                <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.95;">${shortCourseName}</div>
-                                <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.9;">${props.time}</div>
-                                <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.9;">${props.room.split('-')[0]}</div>
-                                ${fullTeacher ? `<div style="font-size: 10px; opacity: 0.85;">${fullTeacher}</div>` : ''}
-                               </div>`
-                    };
+                    if (isMobile) {
+                        // Mobile: Show full info but compact
+                        const shortCourseName = props.courseName.length > 20 ? 
+                            props.courseName.substring(0, 20) + '...' : props.courseName;
+                        const shortTeacher = props.teacher && props.teacher !== 'Chưa có thông tin' ? 
+                            props.teacher.split(' ').slice(-1)[0] : '';
+                        
+                        return {
+                            html: `<div style="padding: 3px 4px; line-height: 1.1; font-size: 9px;">
+                                    <div style="font-weight: 600; font-size: 11px; margin-bottom: 2px; color: white;">${props.courseCode}</div>
+                                    <div style="font-size: 8px; margin-bottom: 1px; opacity: 0.95;">${shortCourseName}</div>
+                                    <div style="font-size: 8px; margin-bottom: 1px; opacity: 0.9;">${props.time}</div>
+                                    <div style="font-size: 8px; margin-bottom: 1px; opacity: 0.9;">${props.room.split('-')[0]}</div>
+                                    ${shortTeacher ? `<div style="font-size: 7px; opacity: 0.85;">${shortTeacher}</div>` : ''}
+                                   </div>`
+                        };
+                    } else {
+                        // Desktop: Show full info
+                        const shortCourseName = props.courseName.length > 25 ? 
+                            props.courseName.substring(0, 25) + '...' : props.courseName;
+                        const fullTeacher = props.teacher && props.teacher !== 'Chưa có thông tin' ? 
+                            props.teacher : '';
+                        
+                        return {
+                            html: `<div style="padding: 4px 6px; line-height: 1.2; font-size: 12px;">
+                                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 3px; color: white;">${props.courseCode}</div>
+                                    <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.95;">${shortCourseName}</div>
+                                    <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.9;">${props.time}</div>
+                                    <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.9;">${props.room.split('-')[0]}</div>
+                                    ${fullTeacher ? `<div style="font-size: 10px; opacity: 0.85;">${fullTeacher}</div>` : ''}
+                                   </div>`
+                        };
+                    }
                 }
             });
             
@@ -1131,7 +1275,158 @@
             if (event.key === 'Escape') {
                 closeModal('passwordModal');
                 closeModal('editorModal');
+                closeModal('dayDetailModal');
             }
+        });
+
+        // Day detail functionality
+        function showDayDetail(clickedDate) {
+            console.log('showDayDetail called with:', clickedDate); // Debug log
+            
+            const modal = document.getElementById('dayDetailModal');
+            const title = document.getElementById('dayDetailTitle');
+            const content = document.getElementById('dayDetailContent');
+            
+            if (!modal || !title || !content) {
+                console.error('Modal elements not found');
+                return;
+            }
+            
+            // Format date for display
+            const dateStr = clickedDate.toLocaleDateString('vi-VN', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            title.innerHTML = `📅 ${dateStr}`;
+            
+            // Find events for this date
+            const dayEvents = [];
+            if (scheduleData && scheduleData.data) {
+                scheduleData.data.ds_tuan_tkb.forEach(week => {
+                    week.ds_thoi_khoa_bieu.forEach(course => {
+                        const courseDate = parseDate(course.ngay_hoc);
+                        courseDate.setHours(0, 0, 0, 0);
+                        const clickedDateNormalized = new Date(clickedDate);
+                        clickedDateNormalized.setHours(0, 0, 0, 0);
+                        
+                        if (courseDate.getTime() === clickedDateNormalized.getTime()) {
+                            dayEvents.push(course);
+                        }
+                    });
+                });
+            }
+            
+            // Sort events by start time
+            dayEvents.sort((a, b) => a.tiet_bat_dau - b.tiet_bat_dau);
+            
+            if (dayEvents.length === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🎉</div>
+                        <h4 style="color: #2c3e50; margin-bottom: 10px;">Không có lịch học</h4>
+                        <p>Hôm này bạn được nghỉ ngơi!</p>
+                    </div>
+                `;
+            } else {
+                const eventsHtml = dayEvents.map((course, index) => {
+                    const timeRange = parsePeriodToTime(course.tiet_bat_dau, course.so_tiet);
+                    const colorClass = `course-${(index % 5) + 1}`;
+                    
+                    return `
+                        <div class="schedule-item" style="margin-bottom: 15px; border-left: 4px solid var(--${colorClass}-color, #2c3e50);">
+                            <div style="display: flex; justify-content: between; align-items: flex-start; margin-bottom: 10px;">
+                                <div>
+                                    <div style="display: inline-block; background: #2c3e50; color: white; padding: 4px 12px; border-radius: 4px; font-weight: 600; margin-bottom: 8px;">
+                                        ${course.ma_mon}
+                                    </div>
+                                    <div style="font-size: 1.2em; font-weight: 600; color: #2c3e50; margin-bottom: 8px;">
+                                        ${course.ten_mon}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; color: #495057;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 16px;">🕐</span>
+                                    <div>
+                                        <strong>Thời gian:</strong><br>
+                                        <span style="color: #2c3e50; font-weight: 600;">${timeRange}</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 16px;">📍</span>
+                                    <div>
+                                        <strong>Phòng học:</strong><br>
+                                        <span style="color: #2c3e50; font-weight: 600;">${course.ma_phong}</span>
+                                    </div>
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 16px;">👥</span>
+                                    <div>
+                                        <strong>Lớp:</strong><br>
+                                        <span style="color: #2c3e50; font-weight: 600;">${course.ma_lop}</span>
+                                    </div>
+                                </div>
+                                
+                                ${course.ten_giang_vien ? `
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 16px;">👨‍🏫</span>
+                                    <div>
+                                        <strong>Giảng viên:</strong><br>
+                                        <span style="color: #2c3e50; font-weight: 600;">${course.ten_giang_vien}</span>
+                                    </div>
+                                </div>
+                                ` : ''}
+                                
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 16px;">📚</span>
+                                    <div>
+                                        <strong>Tín chỉ:</strong><br>
+                                        <span style="color: #2c3e50; font-weight: 600;">${course.so_tin_chi}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                content.innerHTML = `
+                    <div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; text-align: center;">
+                        <h4 style="color: #2c3e50; margin: 0;">📚 Có ${dayEvents.length} môn học trong ngày</h4>
+                    </div>
+                    ${eventsHtml}
+                `;
+            }
+            
+            modal.classList.add('show');
+            console.log('Modal should be visible now'); // Debug log
+        }
+
+        // Add click event listeners to calendar days (backup method)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add a delay to ensure calendar is rendered
+            setTimeout(() => {
+                const calendarEl = document.getElementById('calendar');
+                if (calendarEl) {
+                    calendarEl.addEventListener('click', function(e) {
+                        // Check if clicked on a day cell
+                        const dayCell = e.target.closest('.fc-daygrid-day');
+                        if (dayCell && !e.target.closest('.fc-event')) {
+                            const dateAttr = dayCell.getAttribute('data-date');
+                            if (dateAttr) {
+                                console.log('Backup day click detected:', dateAttr);
+                                const clickedDate = new Date(dateAttr + 'T00:00:00');
+                                showDayDetail(clickedDate);
+                            }
+                        }
+                    });
+                }
+            }, 1000);
         });
     </script>
 </body>
