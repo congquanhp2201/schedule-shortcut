@@ -138,6 +138,22 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
         }
 
+        /* Mobile: Disable hover effects and make day cells more clickable */
+        @media (max-width: 768px) {
+            .fc-event:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+            
+            .fc-daygrid-day {
+                cursor: pointer !important;
+            }
+            
+            .fc-daygrid-day:active {
+                background-color: rgba(52, 73, 94, 0.1) !important;
+            }
+        }
+
         .fc-event.course-1 { background: #6c757d !important; color: white !important; }
         .fc-event.course-2 { background: #495057 !important; color: white !important; }
         .fc-event.course-3 { background: #343a40 !important; color: white !important; }
@@ -812,10 +828,20 @@
                 height: 'auto',
                 events: events,
                 eventMouseEnter: function(info) {
-                    showTooltip(info.jsEvent, info.event.extendedProps);
+                    // Only show tooltip on desktop
+                    if (window.innerWidth > 768) {
+                        showTooltip(info.jsEvent, info.event.extendedProps);
+                    }
                 },
                 eventMouseLeave: function(info) {
                     hideTooltip();
+                },
+                eventClick: function(info) {
+                    // On mobile, clicking event should show day detail instead of tooltip
+                    if (window.innerWidth <= 768) {
+                        info.jsEvent.preventDefault();
+                        showDayDetail(info.event.start);
+                    }
                 },
                 dateClick: function(info) {
                     console.log('Date clicked:', info.date); // Debug log
@@ -1407,21 +1433,48 @@
             console.log('Modal should be visible now'); // Debug log
         }
 
-        // Add click event listeners to calendar days (backup method)
+        // Enhanced click event listeners for mobile
         document.addEventListener('DOMContentLoaded', function() {
             // Add a delay to ensure calendar is rendered
             setTimeout(() => {
                 const calendarEl = document.getElementById('calendar');
                 if (calendarEl) {
                     calendarEl.addEventListener('click', function(e) {
-                        // Check if clicked on a day cell
                         const dayCell = e.target.closest('.fc-daygrid-day');
-                        if (dayCell && !e.target.closest('.fc-event')) {
+                        
+                        if (dayCell) {
                             const dateAttr = dayCell.getAttribute('data-date');
                             if (dateAttr) {
-                                console.log('Backup day click detected:', dateAttr);
+                                console.log('Day cell clicked:', dateAttr);
                                 const clickedDate = new Date(dateAttr + 'T00:00:00');
-                                showDayDetail(clickedDate);
+                                
+                                // On mobile, always show day detail regardless of what was clicked
+                                if (window.innerWidth <= 768) {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    showDayDetail(clickedDate);
+                                } else {
+                                    // On desktop, only show if not clicking on event
+                                    if (!e.target.closest('.fc-event')) {
+                                        showDayDetail(clickedDate);
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    
+                    // Add touch event for better mobile experience
+                    calendarEl.addEventListener('touchend', function(e) {
+                        if (window.innerWidth <= 768) {
+                            const dayCell = e.target.closest('.fc-daygrid-day');
+                            if (dayCell) {
+                                const dateAttr = dayCell.getAttribute('data-date');
+                                if (dateAttr) {
+                                    console.log('Day cell touched:', dateAttr);
+                                    const clickedDate = new Date(dateAttr + 'T00:00:00');
+                                    e.preventDefault();
+                                    showDayDetail(clickedDate);
+                                }
                             }
                         }
                     });
