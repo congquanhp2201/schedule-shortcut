@@ -162,6 +162,25 @@
 
         .fc-daygrid-day-frame {
             min-height: 200px;
+            cursor: pointer;
+        }
+        
+        /* Make entire day cell clickable */
+        .fc-daygrid-day {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .fc-daygrid-day:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+        
+        /* Ensure all day elements are clickable */
+        .fc-daygrid-day-top,
+        .fc-daygrid-day-events,
+        .fc-daygrid-day-bg {
+            cursor: pointer;
+            pointer-events: auto;
         }
 
         .fc-col-header-cell {
@@ -659,9 +678,9 @@
             <div id="calendar"></div>
 
             <!-- Schedule List -->
-            <div class="schedule-list" id="scheduleList">
+            <!-- <div class="schedule-list" id="scheduleList">
                 <h2 style="margin-bottom: 20px; color: #2c3e50;">📋 Chi tiết các môn học</h2>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -797,8 +816,6 @@
                         }
                         
                         const courseDate = parseDate(course.ngay_hoc);
-                        const timeRange = parsePeriodToTime(course.tiet_bat_dau, course.so_tiet);
-                        
                         events.push({
                             title: `${course.ma_mon} - ${course.ma_phong.split('-')[0]}`,
                             start: courseDate,
@@ -806,7 +823,6 @@
                             classNames: [`course-${courseColorMap.get(course.ma_mon)}`],
                             extendedProps: {
                                 courseName: course.ten_mon,
-                                time: timeRange,
                                 room: course.ma_phong,
                                 teacher: course.ten_giang_vien || 'Chưa có thông tin',
                                 courseCode: course.ma_mon,
@@ -856,6 +872,12 @@
                     console.log('Date clicked:', info.date); // Debug log
                     showDayDetail(info.date);
                 },
+                // Click anywhere on day cell should show detail
+                dayMaxEventRows: false,
+                moreLinkClick: function(info) {
+                    showDayDetail(info.date);
+                    return false; // Prevent default behavior
+                },
                 selectable: true,
                 selectMirror: true,
                 dayHeaderFormat: { weekday: 'short' },
@@ -886,7 +908,7 @@
                             html: `<div style="padding: 3px 4px; line-height: 1.1; font-size: 9px;">
                                     <div style="font-weight: 600; font-size: 11px; margin-bottom: 2px; color: white;">${props.courseCode}</div>
                                     <div style="font-size: 8px; margin-bottom: 1px; opacity: 0.95;">${shortCourseName}</div>
-                                    <div style="font-size: 8px; margin-bottom: 1px; opacity: 0.9;">${props.time}</div>
+                    
                                     <div style="font-size: 8px; margin-bottom: 1px; opacity: 0.9;">${props.room.split('-')[0]}</div>
                                     ${shortTeacher ? `<div style="font-size: 7px; opacity: 0.85;">${shortTeacher}</div>` : ''}
                                    </div>`
@@ -902,7 +924,6 @@
                             html: `<div style="padding: 4px 6px; line-height: 1.2; font-size: 12px;">
                                     <div style="font-weight: 600; font-size: 14px; margin-bottom: 3px; color: white;">${props.courseCode}</div>
                                     <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.95;">${shortCourseName}</div>
-                                    <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.9;">${props.time}</div>
                                     <div style="font-size: 11px; margin-bottom: 2px; opacity: 0.9;">${props.room.split('-')[0]}</div>
                                     ${fullTeacher ? `<div style="font-size: 10px; opacity: 0.85;">${fullTeacher}</div>` : ''}
                                    </div>`
@@ -925,7 +946,6 @@
             tooltipEl.innerHTML = `
                 <div style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #fff;">📚 ${props.courseName}</div>
                 <div style="margin-bottom: 6px; font-size: 13px;"><strong>Mã môn:</strong> ${props.courseCode}</div>
-                <div style="margin-bottom: 6px; font-size: 13px;"><strong>Thời gian:</strong> ${props.time}</div>
                 <div style="margin-bottom: 6px; font-size: 13px;"><strong>Phòng học:</strong> ${props.room}</div>
                 <div style="margin-bottom: 6px; font-size: 13px;"><strong>Lớp:</strong> ${props.classCode || 'N/A'}</div>
                 <div style="font-size: 13px;"><strong>Giảng viên:</strong> ${props.teacher}</div>
@@ -994,12 +1014,10 @@
                 todayEvents.sort((a, b) => a.tiet_bat_dau - b.tiet_bat_dau);
                 
                 todayEventsList.innerHTML = todayEvents.map(course => {
-                    const timeRange = parsePeriodToTime(course.tiet_bat_dau, course.so_tiet);
                     return `
                         <div class="schedule-item" style="margin-bottom: 12px; padding: 15px;">
                             <div class="course-header">
                                 <span class="course-code">${course.ma_mon}</span>
-                                <span style="color: #2c3e50; font-weight: 600; font-size: 14px;">${timeRange}</span>
                             </div>
                             <div style="font-weight: 600; color: #2c3e50; font-size: 16px; margin-bottom: 8px;">${course.ten_mon}</div>
                             <div style="color: #495057; margin-bottom: 4px; font-size: 14px;">📍 Phòng: ${course.ma_phong}</div>
@@ -1076,12 +1094,10 @@
                 nextDayEvents.sort((a, b) => a.tiet_bat_dau - b.tiet_bat_dau);
                 
                 nextDayEventsList.innerHTML = nextDayEvents.map(course => {
-                    const timeRange = parsePeriodToTime(course.tiet_bat_dau, course.so_tiet);
                     return `
                         <div class="schedule-item" style="margin-bottom: 12px; padding: 15px;">
                             <div class="course-header">
                                 <span class="course-code">${course.ma_mon}</span>
-                                <span style="color: #2c3e50; font-weight: 600; font-size: 14px;">${timeRange}</span>
                             </div>
                             <div style="font-weight: 600; color: #2c3e50; font-size: 16px; margin-bottom: 8px;">${course.ten_mon}</div>
                             <div style="color: #495057; margin-bottom: 4px; font-size: 14px;">📍 Phòng: ${course.ma_phong}</div>
@@ -1112,7 +1128,6 @@
                             ...course,
                             weeks: [week],
                             dayName: getDayName(course.thu_kieu_so),
-                            timeRange: parsePeriodToTime(course.tiet_bat_dau, course.so_tiet)
                         });
                     } else {
                         courseMap.get(course.ma_mon).weeks.push(week);
@@ -1140,8 +1155,8 @@
                         <div class="course-name">${course.ten_mon}</div>
                         <div class="course-details">
                             <div class="detail-item">
-                                <span class="detail-icon">🕐</span>
-                                <span>${course.dayName}, ${course.timeRange}</span>
+                                <span class="detail-icon">📅</span>
+                                <span>${course.dayName}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-icon">📍</span>
@@ -1167,7 +1182,7 @@
                 `;
             }).join('');
             
-            scheduleList.innerHTML = '<h2 style="margin-bottom: 20px; color: #2c3e50;">📋 Chi tiết các môn học</h2>' + scheduleItems;
+            // scheduleList.innerHTML = '<h2 style="margin-bottom: 20px; color: #2c3e50;">📋 Chi tiết các môn học</h2>' + scheduleItems;
         }
 
         // Update legend with actual course data
@@ -1453,7 +1468,6 @@
                 `;
             } else {
                 const eventsHtml = dayEvents.map((course, index) => {
-                    const timeRange = parsePeriodToTime(course.tiet_bat_dau, course.so_tiet);
                     const colorClass = `course-${(index % 5) + 1}`;
                     
                     return `
@@ -1470,14 +1484,6 @@
                             </div>
                             
                             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; color: #495057;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="font-size: 16px;">🕐</span>
-                                    <div>
-                                        <strong>Thời gian:</strong><br>
-                                        <span style="color: #2c3e50; font-weight: 600;">${timeRange}</span>
-                                    </div>
-                                </div>
-                                
                                 <div style="display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 16px;">📍</span>
                                     <div>
@@ -1535,7 +1541,21 @@
                 const calendarEl = document.getElementById('calendar');
                 if (calendarEl) {
                     calendarEl.addEventListener('click', function(e) {
-                        const dayCell = e.target.closest('.fc-daygrid-day');
+                        // Find the day cell that was clicked (check multiple possible targets)
+                        let dayCell = e.target.closest('.fc-daygrid-day');
+                        
+                        // Also check for clicks on day numbers, events, and other day elements
+                        if (!dayCell) {
+                            const dayNumber = e.target.closest('.fc-daygrid-day-number');
+                            const dayTop = e.target.closest('.fc-daygrid-day-top');
+                            const dayFrame = e.target.closest('.fc-daygrid-day-frame');
+                            const dayEvents = e.target.closest('.fc-daygrid-day-events');
+                            const event = e.target.closest('.fc-event');
+                            
+                            if (dayNumber || dayTop || dayFrame || dayEvents || event) {
+                                dayCell = (dayNumber || dayTop || dayFrame || dayEvents || event).closest('.fc-daygrid-day');
+                            }
+                        }
                         
                         if (dayCell) {
                             const dateAttr = dayCell.getAttribute('data-date');
@@ -1543,33 +1563,39 @@
                                 console.log('Day cell clicked:', dateAttr);
                                 const clickedDate = new Date(dateAttr + 'T00:00:00');
                                 
-                                // On mobile, always show day detail regardless of what was clicked
-                                if (window.innerWidth <= 768) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    showDayDetail(clickedDate);
-                                } else {
-                                    // On desktop, only show if not clicking on event
-                                    if (!e.target.closest('.fc-event')) {
-                                        showDayDetail(clickedDate);
-                                    }
-                                }
+                                // Always show day detail when clicking anywhere in day cell
+                                e.preventDefault();
+                                e.stopPropagation();
+                                showDayDetail(clickedDate);
                             }
                         }
                     });
                     
                     // Add touch event for better mobile experience
                     calendarEl.addEventListener('touchend', function(e) {
-                        if (window.innerWidth <= 768) {
-                            const dayCell = e.target.closest('.fc-daygrid-day');
-                            if (dayCell) {
-                                const dateAttr = dayCell.getAttribute('data-date');
-                                if (dateAttr) {
-                                    console.log('Day cell touched:', dateAttr);
-                                    const clickedDate = new Date(dateAttr + 'T00:00:00');
-                                    e.preventDefault();
-                                    showDayDetail(clickedDate);
-                                }
+                        let dayCell = e.target.closest('.fc-daygrid-day');
+                        
+                        // Also check for touches on day elements
+                        if (!dayCell) {
+                            const dayNumber = e.target.closest('.fc-daygrid-day-number');
+                            const dayTop = e.target.closest('.fc-daygrid-day-top');
+                            const dayFrame = e.target.closest('.fc-daygrid-day-frame');
+                            const dayEvents = e.target.closest('.fc-daygrid-day-events');
+                            const event = e.target.closest('.fc-event');
+                            
+                            if (dayNumber || dayTop || dayFrame || dayEvents || event) {
+                                dayCell = (dayNumber || dayTop || dayFrame || dayEvents || event).closest('.fc-daygrid-day');
+                            }
+                        }
+                        
+                        if (dayCell) {
+                            const dateAttr = dayCell.getAttribute('data-date');
+                            if (dateAttr) {
+                                console.log('Day cell touched:', dateAttr);
+                                const clickedDate = new Date(dateAttr + 'T00:00:00');
+                                e.preventDefault();
+                                e.stopPropagation();
+                                showDayDetail(clickedDate);
                             }
                         }
                     });
