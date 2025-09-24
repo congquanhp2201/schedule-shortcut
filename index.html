@@ -639,6 +639,12 @@
                 <div id="todayEventsList"></div>
             </div>
 
+            <!-- Next Day Events -->
+            <div class="today-events" id="nextDayEvents">
+                <h3 id="nextDayTitle">📅 Ngày tiếp theo</h3>
+                <div id="nextDayEventsList"></div>
+            </div>
+
             <!-- Legend -->
             <div class="legend" id="legend">
                 <div class="legend-item">
@@ -713,6 +719,7 @@
                 // Initialize calendar after data is loaded
                 initializeFullCalendar();
                 generateTodayEvents();
+                generateNextDayEvents();
                 generateScheduleList();
                 updateLegend();
             } catch (error) {
@@ -1001,6 +1008,91 @@
             }
         }
 
+        // Generate next day events
+        function generateNextDayEvents() {
+            if (!scheduleData) return;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const nextDayTitle = document.getElementById('nextDayTitle');
+            const nextDayEventsList = document.getElementById('nextDayEventsList');
+            
+            // Find next day with classes
+            let nextDayWithClasses = null;
+            let nextDayEvents = [];
+            let daysChecked = 0;
+            const maxDaysToCheck = 30; // Check up to 30 days ahead
+            
+            while (!nextDayWithClasses && daysChecked < maxDaysToCheck) {
+                daysChecked++;
+                const checkDate = new Date(today);
+                checkDate.setDate(today.getDate() + daysChecked);
+                checkDate.setHours(0, 0, 0, 0);
+                
+                const dayEvents = [];
+                scheduleData.data.ds_tuan_tkb.forEach(week => {
+                    week.ds_thoi_khoa_bieu.forEach(course => {
+                        const courseDate = parseDate(course.ngay_hoc);
+                        courseDate.setHours(0, 0, 0, 0);
+                        
+                        if (courseDate.getTime() === checkDate.getTime()) {
+                            dayEvents.push(course);
+                        }
+                    });
+                });
+                
+                if (dayEvents.length > 0) {
+                    nextDayWithClasses = checkDate;
+                    nextDayEvents = dayEvents;
+                    break;
+                }
+            }
+            
+            if (nextDayWithClasses) {
+                // Format next day date
+                const nextDayStr = nextDayWithClasses.toLocaleDateString('vi-VN', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long'
+                });
+                
+                // Calculate days from today
+                const daysFromToday = Math.ceil((nextDayWithClasses.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                let dayLabel = '';
+                if (daysFromToday === 1) {
+                    dayLabel = 'Ngày mai';
+                } else if (daysFromToday === 2) {
+                    dayLabel = 'Ngày kia';
+                } else {
+                    dayLabel = `${daysFromToday} ngày nữa`;
+                }
+                
+                nextDayTitle.innerHTML = `📅 ${dayLabel} (${nextDayStr})`;
+                
+                // Sort events by start time
+                nextDayEvents.sort((a, b) => a.tiet_bat_dau - b.tiet_bat_dau);
+                
+                nextDayEventsList.innerHTML = nextDayEvents.map(course => {
+                    const timeRange = parsePeriodToTime(course.tiet_bat_dau, course.so_tiet);
+                    return `
+                        <div class="schedule-item" style="margin-bottom: 12px; padding: 15px;">
+                            <div class="course-header">
+                                <span class="course-code">${course.ma_mon}</span>
+                                <span style="color: #2c3e50; font-weight: 600; font-size: 14px;">${timeRange}</span>
+                            </div>
+                            <div style="font-weight: 600; color: #2c3e50; font-size: 16px; margin-bottom: 8px;">${course.ten_mon}</div>
+                            <div style="color: #495057; margin-bottom: 4px; font-size: 14px;">📍 Phòng: ${course.ma_phong}</div>
+                            ${course.ten_giang_vien ? `<div style="color: #495057; font-size: 14px;">👨‍🏫 GV: ${course.ten_giang_vien}</div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                nextDayTitle.innerHTML = '📅 Ngày tiếp theo';
+                nextDayEventsList.innerHTML = '<p style="color: #666; font-style: italic; font-size: 14px;">Không tìm thấy lịch học trong 30 ngày tới 🎉</p>';
+            }
+        }
+
         // Generate schedule list
         function generateScheduleList() {
             if (!scheduleData) return;
@@ -1111,10 +1203,11 @@
             loadScheduleData();
         });
 
-        // Update every minute to keep "today" current
+        // Update every minute to keep "today" and "next day" current
         setInterval(() => {
             if (scheduleData) {
                 generateTodayEvents();
+                generateNextDayEvents();
                 // Refresh calendar to update "today" highlight
                 if (calendar) {
                     calendar.render();
@@ -1194,6 +1287,7 @@
                 // Refresh calendar with new data
                 initializeFullCalendar();
                 generateTodayEvents();
+                generateNextDayEvents();
                 generateScheduleList();
                 updateLegend();
                 
@@ -1206,6 +1300,7 @@
                     scheduleData = tempData;
                     initializeFullCalendar();
                     generateTodayEvents();
+                    generateNextDayEvents();
                     generateScheduleList();
                     updateLegend();
                 }, 5000);
@@ -1235,6 +1330,7 @@
                 // Refresh calendar
                 initializeFullCalendar();
                 generateTodayEvents();
+                generateNextDayEvents();
                 generateScheduleList();
                 updateLegend();
                 
